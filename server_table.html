@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th></th>
+        <th scope="col">Name</th>
+        <th scope="col">Age</th>
+        <th scope="col">Address</th>
+        <th scope="col">Phone Number</th>
+        <th scope="col">Email</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <button id="btn">Submit</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+      var table = $('#data').DataTable({
+                                          ajax: '/api/data',
+                                          serverSide: true,
+                                          columnDefs: [  {
+                                              'targets': 0,
+                                              'render': function(data, type, row, meta){
+                                                if(type === 'display'){
+                                                    data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+                                                }
+
+                                                return data;
+                                              },
+                                              // 'checkboxes': {
+                                              //   'selectRow': true,
+                                              //   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
+                                              // }
+                                          } ],
+                                          
+                                          select: {
+                                              style:  'multi',
+                                          } ,
+                                          columns: [
+                                            {"defaultContent": ''},
+                                            {data: 'name'},
+                                            {data: 'age' },
+                                            {data: 'address', orderable: false},
+                                            {data: 'phone', orderable: false},
+                                            {data: 'email'}
+                                          ],
+            
+                            });
+          
+
+          $('#data tbody').on('click', 'tr', function () {
+                   $(this).toggleClass('selected');
+               });
+          
+          $("#btn").click(function(){
+              var rows_selected = table.rows('.selected').data()
+              console.log( JSON.stringify(rows_selected))
+              $.ajax({
+                  method: "POST",
+                  url: "/api/savedata",
+                  data: JSON.stringify(rows_selected),
+                  contentType: "application/json",
+                  dataType: 'json' 
+                  })
+           });
+        });
+  </script> 
+  <!-- <script>
+    $(function(){
+    $("#btn").click(function(){
+        // var hd=[];
+        // $("#data input[type=checkbox]:checked").each(function(){
+        //     var rw=$(this).closest("tr")[0];
+        //     hd += rw.cells[1].innerHTML;
+        //     hd += " "+rw.cells[2].innerHTML;
+        //     hd += " "+rw.cells[3].innerHTML;
+ 
+        // });
+        // alert(hd);
+        var rows_selected = table.rows('.selected').data();
+        console.log(rows_selected)
+        // var server_data = [
+        //         {"QTc": 'x'},
+        //         {"prolonged": 'y'},
+        //         {"HR": 'z'},
+        //         {"QT": 'zz'},
+        //         {"Sex": 'yy'}
+        //       ];
+        $.ajax({
+            method: "POST",
+            url: "/api/savedata",
+            data: JSON.stringify(rows_selected),
+            contentType: "application/json",
+             dataType: 'json' 
+              })
+    });
+  });
+</script>  -->
+<!-- <script>
+    $.ajax({
+      method: "POST",
+      url: "some.php",
+      data: { name: "John", location: "Boston" }
+    })
+      .done(function( msg ) {
+        alert( "Data Saved: " + msg );
+      });
+</script> -->
+{% endblock %}
