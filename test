@@ -1,0 +1,75 @@
+import requests
+url = 'https://api-uat.institutionalfundsales.com/graphql'
+headers={"Content-Type":"application/json" ,"x-api-key":""}
+query="query { status }"
+request = requests.post(url, json={'query': query}, headers=headers)
+
+
+
+import requests
+url = 'https://api-uat.institutionalfundsales.com/graphql'
+headers={"Content-Type":"application/json" ,"x-api-key":""}
+query=""" query 
+             {
+               getStatus
+               {
+                  status
+                }
+             }
+       """
+
+request = requests.post(url, json={'query': query}, headers=headers)
+print(request.json())
+
+
+
+import requests
+url = 'https://api-uat.institutionalfundsales.com/graphql'
+headers={"Content-Type":"application/json" ,"x-api-key":""}
+query=""" query 
+             {
+               getLastSnapshotUpdate
+               {
+                  
+                   lastSnapshotUpdate
+                }
+             }
+       """
+request = requests.post(url, json={'query': query}, headers=headers)
+print(request.json())
+
+
+import requests
+url = 'https://api-uat.institutionalfundsales.com/graphql'
+headers={"Content-Type":"application/json" ,"x-api-key":""}
+query=""" query 
+             {
+               getDomicilesSet
+               {
+                  
+                   id,
+                   domiciles
+                }
+             }
+       """
+request = requests.post(url, json={'query': query}, headers=headers)
+print(request.json())
+
+
+import requests
+url = 'https://api-uat.institutionalfundsales.com/graphql'
+headers={"Content-Type":"application/json" ,"x-api-key":""}
+query=""" query 
+             {
+               getDomicilesSetSnapshot(domicilesSetId:"String",limit:10,cursor:0)
+                {cursor 
+                      holdings {
+                              portfolioId
+                              fundClassId
+                              }
+                }
+             }
+       """
+request = requests.post(url, json={'query': query}, headers=headers)
+print(request.json())
+
