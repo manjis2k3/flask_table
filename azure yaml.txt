@@ -1,0 +1,51 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+- job: UpdateJsonFile
+  steps:
+  - powershell: |
+      # Azure DevOps variables
+      $organization = "YourOrganization"
+      $project = "YourProject"
+      $variableGroupId = "YourVariableGroupId"
+      $pat = "$(System.AccessToken)"  # Using the system access token available in the pipeline
+
+      # Generate the Azure DevOps REST API URL to get variable group variables
+      $uri = "https://dev.azure.com/$organization/$project/_apis/distributedtask/variablegroups/$variableGroupId/variables?api-version=6.0-preview.1"
+
+      # Invoke REST API to get variable group variables
+      $headers = @{
+          Authorization = "Bearer $pat"
+      }
+
+      $response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+
+      # Read the JSON file
+      $jsonFilePath = "$(Build.SourcesDirectory)\path\to\your\json\file.json"
+      $jsonContent = Get-Content -Path $jsonFilePath | ConvertFrom-Json
+
+      # Replace keys in the JSON file with variable group keys
+      foreach ($variable in $response.variables) {
+          $jsonContent = $jsonContent | ForEach-Object {
+              if ($_.PSObject.Properties.Name -contains $variable.key) {
+                  $_.PSObject.Properties[$variable.key].Value = $variable.value
+              }
+              $_
+          }
+      }
+
+      # Save the updated JSON content back to the file
+      $jsonContent | ConvertTo-Json | Set-Content -Path $jsonFilePath
+    displayName: 'Update JSON File'
+
+  - script: |
+      git config --global user.email "you@example.com"
+      git config --global user.name "Your Name"
+      git add path/to/your/json/file.json
+      git commit -m "Update JSON file with variable group values"
+      git push origin main
+    displayName: 'Commit and Push Changes'
